@@ -1,0 +1,49 @@
+version: 2
+
+project_name: tab
+
+builds:
+  - id: tab
+    main: ./cmd/tab
+    binary: tab
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - >-
+        -s -w
+        -X github.com/hmmhmmhm/tmux-attach-browser/internal/buildinfo.Version=v{{ .Version }}
+        -X github.com/hmmhmmhm/tmux-attach-browser/internal/buildinfo.Commit={{ .Commit }}
+        -X github.com/hmmhmmhm/tmux-attach-browser/internal/buildinfo.Date={{ .CommitDate }}
+
+archives:
+  - ids:
+      - tab
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    name_template: "tab_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
