@@ -1,6 +1,6 @@
 module github.com/hmmhmmhm/tmux-attach-browser
 
-go 1.26.4
+go 1.25.0
 
 require (
 	charm.land/bubbles/v2 v2.1.1
