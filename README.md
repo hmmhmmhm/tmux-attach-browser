@@ -69,7 +69,7 @@ When `tab` runs inside tmux, it switches the current client to your chosen sessi
 | `/` | Filter sessions by name |
 | `r` | Refresh the session list |
 | `?` | Show or hide expanded help |
-| Esc | Cancel filtering or session creation |
+| Esc | Cancel filtering or session creation; quit from the session list |
 | `q`, Ctrl+C | Quit |
 
 <details>
@@ -94,11 +94,13 @@ sudo pacman -S tmux
 <details>
 <summary><strong>Other installation options</strong></summary>
 
-Choose a different installation directory:
+Choose another writable installation directory:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/tmux-attach-browser/main/install.sh | TAB_INSTALL_DIR=/usr/local/bin sh
+curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/tmux-attach-browser/main/install.sh | TAB_INSTALL_DIR="$HOME/bin" sh
 ```
+
+Add the directory to your `PATH` if your shell does not already include it.
 
 Install with Go 1.25 or newer:
 
@@ -113,6 +115,27 @@ curl.exe -fsSL https://raw.githubusercontent.com/hmmhmmhm/tmux-attach-browser/ma
 ```
 
 WSL2 remains the recommended Windows setup.
+
+</details>
+
+<details>
+<summary><strong>Troubleshooting</strong></summary>
+
+### `tab: command not found`
+
+The default installer destination is `~/.local/bin`. Add it to your shell profile, then open a new terminal:
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### `tmux is not installed or is not on PATH`
+
+Install tmux using the commands above, then confirm that `tmux -V` works in the same terminal.
+
+### `tab: connect to session: exit status 1`
+
+The session may have ended after the list was loaded. Run `tab` again or press `r` before selecting.
 
 </details>
 
