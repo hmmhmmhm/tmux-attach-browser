@@ -355,10 +355,9 @@ Expected: the pull request state is `MERGED` with a nonempty merge commit.
 
 - [ ] **Step 4: Synchronize local `main` and verify the merged repository**
 
-Run:
+Run from the primary worktree at `/Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser`:
 
 ```sh
-git switch main
 git fetch origin main
 git merge --ff-only origin/main
 test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
@@ -392,6 +391,7 @@ Expected: the CodeQL run completes successfully, default setup remains configure
 
 **Files:**
 - Remove worktree: `.worktrees/docs/add-terminal-demo`
+- Remove worktree: `.worktrees/chore/enable-repository-security`
 - Delete local branches: `docs/add-terminal-demo`, `docs/modernize-readme`, `feature/initial-release`, `chore/enable-repository-security`
 - Delete remote branches: `docs/add-terminal-demo`, `docs/modernize-readme`, `feature/initial-release`, `chore/enable-repository-security`
 
@@ -426,7 +426,21 @@ test ! -d /Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser/.wor
 
 Expected: only the clean, explicitly named worktree is removed.
 
-- [ ] **Step 3: Delete the four remote branches explicitly**
+- [ ] **Step 3: Verify and remove the implementation worktree**
+
+Run from `/Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser`:
+
+```sh
+set -e
+test -d /Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser/.worktrees/chore/enable-repository-security
+test -z "$(git -C /Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser/.worktrees/chore/enable-repository-security status --porcelain)"
+git worktree remove /Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser/.worktrees/chore/enable-repository-security
+test ! -d /Users/hm/Documents/personal-agent/workspaces/tmux-attach-browser/.worktrees/chore/enable-repository-security
+```
+
+Expected: the merged and clean implementation worktree is removed while the primary `main` worktree remains.
+
+- [ ] **Step 4: Delete the four remote branches explicitly**
 
 Run:
 
@@ -440,7 +454,7 @@ git push origin --delete \
 
 Expected: GitHub confirms deletion of all four named remote branches. No wildcard or force push is used.
 
-- [ ] **Step 4: Delete the four local branches explicitly**
+- [ ] **Step 5: Delete the four local branches explicitly**
 
 Run:
 
@@ -454,7 +468,7 @@ git branch -D \
 
 Expected: Git deletes the four named local branches. Forced local deletion is necessary because squash-merged branch tips are not ancestors of `main`; the user explicitly approved this cleanup.
 
-- [ ] **Step 5: Verify only `main` remains and tags were preserved**
+- [ ] **Step 6: Verify only `main` remains and tags were preserved**
 
 Run:
 

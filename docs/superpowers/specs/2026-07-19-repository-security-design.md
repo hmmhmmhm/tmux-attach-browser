@@ -62,7 +62,7 @@ Remove the stale `feature/initial-release` push trigger. After branch cleanup, C
 5. Verify the returned settings and wait for CI, dependency review, and CodeQL checks.
 6. Mark the approved pull request ready and squash merge it into `main`.
 7. Fast-forward the local `main` worktree and verify the merged configuration.
-8. Remove the clean `docs/add-terminal-demo` worktree.
+8. Remove the clean `docs/add-terminal-demo` and implementation worktrees.
 9. Delete every non-`main` local and remote branch, including the temporary security branch.
 10. Confirm that both local and remote branch listings contain only `main`.
 
