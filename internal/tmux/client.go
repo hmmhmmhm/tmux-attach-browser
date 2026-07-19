@@ -81,8 +81,9 @@ func (c *ExecClient) Create(ctx context.Context, name, cwd string) error {
 	if err := ValidateSessionName(name); err != nil {
 		return err
 	}
-	if err := c.runner.Run(ctx, c.executable, "new-session", "-d", "-s", name, "-c", cwd); err != nil {
-		return commandError("create session", "", err)
+	_, stderr, err := c.runner.Output(ctx, c.executable, "new-session", "-d", "-s", name, "-c", cwd)
+	if err != nil {
+		return commandError("create session", strings.TrimSpace(string(stderr)), err)
 	}
 	return nil
 }

@@ -114,9 +114,23 @@ func TestExecClientCreatesSessionInDirectory(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []runnerCall{{mode: "run", name: "tmux", args: []string{"new-session", "-d", "-s", "work", "-c", "/tmp/project"}}}
+	want := []runnerCall{{mode: "output", name: "tmux", args: []string{"new-session", "-d", "-s", "work", "-c", "/tmp/project"}}}
 	if !reflect.DeepEqual(runner.calls, want) {
 		t.Fatalf("calls = %#v, want %#v", runner.calls, want)
+	}
+}
+
+func TestExecClientCreateReturnsTmuxError(t *testing.T) {
+	runner := &fakeRunner{
+		stderr:    []byte("duplicate session: work"),
+		outputErr: errors.New("exit status 1"),
+	}
+	client := newExecClient("tmux", runner)
+
+	err := client.Create(context.Background(), "work", "/tmp/project")
+
+	if err == nil || !strings.Contains(err.Error(), "duplicate session: work") {
+		t.Fatalf("error = %v", err)
 	}
 }
 
