@@ -15,7 +15,7 @@ trap cleanup EXIT INT TERM
 tmux -L "$socket" new-session -d -s alpha
 tmux -L "$socket" new-session -d -s beta
 
-format='#{session_name}\t#{session_windows}\t#{session_attached}\t#{session_created}\t#{session_activity}'
+format=$(printf '#{session_name}\t#{session_windows}\t#{session_attached}\t#{session_created}\t#{session_activity}')
 sessions=$(tmux -L "$socket" list-sessions -F "$format")
 
 printf '%s\n' "$sessions" | awk -F '\t' 'NF != 5 { exit 1 }'
