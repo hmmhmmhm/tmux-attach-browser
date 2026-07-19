@@ -23,27 +23,7 @@ The installer verifies the release checksum and places `tab` in `~/.local/bin`. 
 
 ## Run `tab`
 
-```text
-$ tab
-
-   tmux sessions
-
-  4 sessions
-
-│ work
-│ 3 windows | 1 attached | active 2026-07-19 18:32:26
-
-  personal-agent
-  2 windows | detached | active 2026-07-19 18:31:07
-
-  api
-  2 windows | detached | active 2026-07-19 18:27:44
-
-  docs
-  1 window | detached | active 2026-07-19 18:20:03
-
-  ↑/k up • ↓/j down • / filter • n new session • r refresh • q quit • ? more
-```
+![Demo showing tab browsing an existing tmux session and creating a new one](docs/assets/tab-demo.gif)
 
 That is the whole workflow:
 
