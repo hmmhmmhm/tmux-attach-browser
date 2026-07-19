@@ -6,7 +6,7 @@
 
 **Architecture:** The command delegates orchestration to `internal/app`, tmux operations to an injected `internal/tmux` client, and terminal state to `internal/ui`. The UI uses Bubbles `list` and `textinput`; it returns a selected session before the app starts an interactive tmux client so Bubble Tea restores the terminal first.
 
-**Tech Stack:** Go 1.24 or newer, Bubble Tea v2, Bubbles v2, Lip Gloss v2, GoReleaser v2, POSIX shell, PowerShell, GitHub Actions
+**Tech Stack:** Go 1.25 or newer, Bubble Tea v2, Bubbles v2, Lip Gloss v2, GoReleaser v2, POSIX shell, PowerShell, GitHub Actions
 
 ---
 
@@ -367,7 +367,7 @@ Use the MIT license with copyright `2026 Hamin`, concise contribution checks mat
 
 ```bash
 rg -n "tab |Enter|WSL|curl|PowerShell|tmux" README.md
-rg -n "TBD|TODO|FIXME|—" README.md CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE .github/ISSUE_TEMPLATE || true
+rg -n "TBD|TODO|FIXME" README.md CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE .github/ISSUE_TEMPLATE || true
 git diff --check
 git add README.md CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE .github/ISSUE_TEMPLATE
 git commit -m "docs: prepare the project for contributors"

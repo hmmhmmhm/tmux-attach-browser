@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible problem with tab
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to report a problem.
+  - type: input
+    id: version
+    attributes:
+      label: tab version
+      description: Paste the output of `tab --version`.
+    validations:
+      required: true
+  - type: input
+    id: tmux-version
+    attributes:
+      label: tmux version
+      description: Paste the output of `tmux -V`.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, architecture, terminal, and shell or WSL distribution.
+      placeholder: macOS 15 arm64, Ghostty, zsh
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: List the smallest sequence that reliably shows the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include complete error output with secrets removed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I confirmed that tmux works directly in the same terminal.
+          required: true
+        - label: I searched existing issues for this problem.
+          required: true
