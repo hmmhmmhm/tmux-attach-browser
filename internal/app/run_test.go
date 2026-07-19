@@ -11,9 +11,14 @@ import (
 )
 
 type fakeClient struct {
+	checkErr      error
 	connectName   string
 	connectInside bool
 	connectErr    error
+}
+
+func (f *fakeClient) Check(context.Context) error {
+	return f.checkErr
 }
 
 func (f *fakeClient) List(context.Context) ([]tmux.Session, error) {
@@ -160,6 +165,21 @@ func TestRunConnectError(t *testing.T) {
 	code := Run([]string{"work"}, h.deps)
 
 	if code != 1 || !strings.Contains(h.stderr.String(), "session vanished") {
+		t.Fatalf("code = %d, stderr = %q", code, h.stderr.String())
+	}
+}
+
+func TestRunTmuxUnavailable(t *testing.T) {
+	h := newHarness()
+	h.client.checkErr = errors.New("tmux is not installed")
+	h.deps.Browse = func(tmux.Client, string) (string, bool, error) {
+		t.Fatal("Browse should not run when tmux is unavailable")
+		return "", false, nil
+	}
+
+	code := Run(nil, h.deps)
+
+	if code != 1 || !strings.Contains(h.stderr.String(), "tmux is not installed") {
 		t.Fatalf("code = %d, stderr = %q", code, h.stderr.String())
 	}
 }

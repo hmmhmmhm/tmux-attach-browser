@@ -48,6 +48,15 @@ func newExecClient(executable string, runner commandRunner) *ExecClient {
 	return &ExecClient{executable: executable, runner: runner}
 }
 
+// Check verifies that tmux can be executed before opening the terminal UI.
+func (c *ExecClient) Check(ctx context.Context) error {
+	_, stderr, err := c.runner.Output(ctx, c.executable, "-V")
+	if err != nil {
+		return commandError("check tmux", strings.TrimSpace(string(stderr)), err)
+	}
+	return nil
+}
+
 // List returns sessions ordered by recent activity.
 func (c *ExecClient) List(ctx context.Context) ([]Session, error) {
 	stdout, stderr, err := c.runner.Output(ctx, c.executable, "list-sessions", "-F", sessionFormat)

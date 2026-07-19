@@ -16,6 +16,7 @@ type Session struct {
 
 // Client is the tmux behavior needed by the command and terminal UI.
 type Client interface {
+	Check(context.Context) error
 	List(context.Context) ([]Session, error)
 	Create(context.Context, string, string) error
 	Connect(context.Context, string, bool) error

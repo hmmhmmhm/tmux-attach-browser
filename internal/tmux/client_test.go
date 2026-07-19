@@ -50,6 +50,32 @@ func TestExecClientListsSessions(t *testing.T) {
 	}
 }
 
+func TestExecClientChecksVersion(t *testing.T) {
+	runner := &fakeRunner{stdout: []byte("tmux 3.6a\n")}
+	client := newExecClient("tmux-custom", runner)
+
+	err := client.Check(context.Background())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []runnerCall{{mode: "output", name: "tmux-custom", args: []string{"-V"}}}
+	if !reflect.DeepEqual(runner.calls, want) {
+		t.Fatalf("calls = %#v, want %#v", runner.calls, want)
+	}
+}
+
+func TestExecClientCheckIdentifiesMissingExecutable(t *testing.T) {
+	runner := &fakeRunner{outputErr: errors.New("executable file not found in $PATH")}
+	client := newExecClient("tmux", runner)
+
+	err := client.Check(context.Background())
+
+	if err == nil || !strings.Contains(err.Error(), "tmux is not installed") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
 func TestExecClientTreatsMissingServerAsEmpty(t *testing.T) {
 	for _, stderr := range []string{
 		"no server running on /tmp/tmux-501/default",

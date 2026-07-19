@@ -48,6 +48,10 @@ func Run(args []string, deps Dependencies) int {
 		fmt.Fprint(deps.Stderr, usage)
 		return 2
 	}
+	if err := deps.Client.Check(context.Background()); err != nil {
+		fmt.Fprintf(deps.Stderr, "tab: %v\n", err)
+		return 1
+	}
 
 	name := ""
 	selected := false

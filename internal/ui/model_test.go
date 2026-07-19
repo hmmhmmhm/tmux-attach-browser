@@ -45,6 +45,8 @@ func (f *fakeClient) List(context.Context) ([]tmux.Session, error) {
 	return f.lists[index], nil
 }
 
+func (f *fakeClient) Check(context.Context) error { return nil }
+
 func (f *fakeClient) Create(_ context.Context, name, dir string) error {
 	f.createName = name
 	f.createDir = dir
