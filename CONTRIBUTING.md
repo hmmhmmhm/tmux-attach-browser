@@ -34,6 +34,7 @@ sh scripts/check-source-lines.sh
 sh scripts/test-source-lines.sh
 sh scripts/test-install.sh
 sh scripts/tmux-smoke.sh
+sh scripts/tab-binary-smoke.sh
 ```
 
 Pull requests should be small, explain user-visible behavior, and include tests. Do not include generated `dist` artifacts.

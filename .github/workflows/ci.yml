@@ -65,5 +65,7 @@ jobs:
         run: go test -race ./...
       - name: Installer tests
         run: sh scripts/test-install.sh
+      - name: tab binary smoke test
+        run: sh scripts/tab-binary-smoke.sh
       - name: tmux smoke test
         run: sh scripts/tmux-smoke.sh
