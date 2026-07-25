@@ -21,7 +21,7 @@ go test ./...
 
 Write a failing test before changing behavior. Keep tmux command execution in `internal/tmux`, Bubble Tea state in `internal/ui`, and CLI orchestration in `internal/app`.
 
-Keep every tracked, hand-written `.go`, `.sh`, `.ps1`, `.yml`, and `.yaml` file at or below 450 lines. This includes tests and workflow configuration. Documentation, generated output, vendored code, and binary assets are excluded. Split a file by responsibility before it exceeds the limit.
+Keep every tracked, hand-written `.go`, `.sh`, `.ps1`, `.yml`, and `.yaml` file at or below 450 lines. This includes tests and workflow configuration. Documentation, `dist`, vendored code, Go files with the standard `Code generated ... DO NOT EDIT.` header, and binary assets are excluded. Split a file by responsibility before it exceeds the limit.
 
 Run all checks before opening a pull request:
 
