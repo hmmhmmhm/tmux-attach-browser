@@ -22,8 +22,9 @@ const (
 )
 
 type sessionsLoadedMsg struct {
-	sessions []tmux.Session
-	err      error
+	generation uint64
+	sessions   []tmux.Session
+	err        error
 }
 
 type sessionCreatedMsg struct {
@@ -33,17 +34,18 @@ type sessionCreatedMsg struct {
 
 // Model is the complete terminal UI state.
 type Model struct {
-	client   tmux.Client
-	cwd      string
-	list     list.Model
-	input    textinput.Model
-	keys     keyMap
-	mode     viewMode
-	err      error
-	loading  bool
-	creating bool
-	chosen   string
-	selected bool
+	client         tmux.Client
+	cwd            string
+	list           list.Model
+	input          textinput.Model
+	keys           keyMap
+	mode           viewMode
+	err            error
+	loading        bool
+	loadGeneration uint64
+	creating       bool
+	chosen         string
+	selected       bool
 }
 
 // New creates a session browser model.
@@ -68,19 +70,20 @@ func New(client tmux.Client, cwd string) Model {
 	input.SetWidth(48)
 
 	return Model{
-		client:  client,
-		cwd:     cwd,
-		list:    sessionList,
-		input:   input,
-		keys:    keys,
-		mode:    modeList,
-		loading: true,
+		client:         client,
+		cwd:            cwd,
+		list:           sessionList,
+		input:          input,
+		keys:           keys,
+		mode:           modeList,
+		loading:        true,
+		loadGeneration: 1,
 	}
 }
 
 // Init loads tmux sessions asynchronously.
 func (m Model) Init() tea.Cmd {
-	return loadSessions(m.client)
+	return loadSessions(m.client, m.loadGeneration)
 }
 
 // Result reports the session chosen by the user.
@@ -92,6 +95,9 @@ func (m Model) Result() (string, bool) {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case sessionsLoadedMsg:
+		if msg.generation != m.loadGeneration {
+			return m, nil
+		}
 		m.loading = false
 		if msg.err != nil {
 			m.err = fmt.Errorf("load sessions: %w", msg.err)
@@ -143,7 +149,8 @@ func (m Model) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(keyMsg, m.keys.refresh):
 			m.loading = true
 			m.err = nil
-			return m, loadSessions(m.client)
+			m.loadGeneration++
+			return m, loadSessions(m.client, m.loadGeneration)
 
 		case keyMsg.Code == tea.KeyEnter:
 			item, ok := m.list.SelectedItem().(sessionItem)
@@ -232,10 +239,14 @@ var (
 	errorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
 )
 
-func loadSessions(client tmux.Client) tea.Cmd {
+func loadSessions(client tmux.Client, generation uint64) tea.Cmd {
 	return func() tea.Msg {
 		sessions, err := client.List(context.Background())
-		return sessionsLoadedMsg{sessions: sessions, err: err}
+		return sessionsLoadedMsg{
+			generation: generation,
+			sessions:   sessions,
+			err:        err,
+		}
 	}
 }
 

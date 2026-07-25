@@ -147,6 +147,28 @@ func TestRefreshReplacesItems(t *testing.T) {
 	}
 }
 
+func TestOlderRefreshResultCannotReplaceNewerResult(t *testing.T) {
+	client := &fakeClient{lists: [][]tmux.Session{
+		{session("initial", 1, 0)},
+		{session("older", 1, 0)},
+		{session("newer", 1, 0)},
+	}}
+	model := loadModel(t, client)
+
+	model, olderCmd := updateModel(t, model, keyMsg('r', "r"))
+	model, newerCmd := updateModel(t, model, keyMsg('r', "r"))
+	olderMsg := olderCmd()
+	newerMsg := newerCmd()
+
+	model, _ = updateModel(t, model, newerMsg)
+	model, _ = updateModel(t, model, olderMsg)
+
+	item := model.list.Items()[0].(sessionItem)
+	if item.Title() != "newer" || model.loading {
+		t.Fatalf("title = %q, loading = %v", item.Title(), model.loading)
+	}
+}
+
 func TestRefreshErrorKeepsExistingItems(t *testing.T) {
 	client := &fakeClient{
 		lists:      [][]tmux.Session{{session("work", 1, 0)}},
