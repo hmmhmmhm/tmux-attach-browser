@@ -5,7 +5,7 @@
 **Choose or create a tmux session with one command.**
 
 [![CI](https://github.com/hmmhmmhm/tmux-attach-browser/actions/workflows/ci.yml/badge.svg)](https://github.com/hmmhmmhm/tmux-attach-browser/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/hmmhmmhm/tmux-attach-browser/releases/latest)
+[![Release](https://img.shields.io/badge/release-v0.1.1-blue)](https://github.com/hmmhmmhm/tmux-attach-browser/releases/latest)
 [![Go](https://img.shields.io/badge/go-1.25-blue)](go.mod)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
