@@ -34,6 +34,7 @@ type sessionCreatedMsg struct {
 
 // Model is the complete terminal UI state.
 type Model struct {
+	ctx            context.Context
 	client         tmux.Client
 	cwd            string
 	list           list.Model
@@ -50,6 +51,10 @@ type Model struct {
 
 // New creates a session browser model.
 func New(client tmux.Client, cwd string) Model {
+	return newModel(context.Background(), client, cwd)
+}
+
+func newModel(ctx context.Context, client tmux.Client, cwd string) Model {
 	keys := newKeyMap()
 	delegate := list.NewDefaultDelegate()
 	sessionList := list.New(nil, delegate, 80, 24)
@@ -70,6 +75,7 @@ func New(client tmux.Client, cwd string) Model {
 	input.SetWidth(48)
 
 	return Model{
+		ctx:            ctx,
 		client:         client,
 		cwd:            cwd,
 		list:           sessionList,
@@ -83,7 +89,7 @@ func New(client tmux.Client, cwd string) Model {
 
 // Init loads tmux sessions asynchronously.
 func (m Model) Init() tea.Cmd {
-	return loadSessions(m.client, m.loadGeneration)
+	return loadSessions(m.ctx, m.client, m.loadGeneration)
 }
 
 // Result reports the session chosen by the user.
@@ -150,7 +156,7 @@ func (m Model) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.loading = true
 			m.err = nil
 			m.loadGeneration++
-			return m, loadSessions(m.client, m.loadGeneration)
+			return m, loadSessions(m.ctx, m.client, m.loadGeneration)
 
 		case keyMsg.Code == tea.KeyEnter:
 			item, ok := m.list.SelectedItem().(sessionItem)
@@ -189,7 +195,7 @@ func (m Model) updateCreate(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.err = nil
 			m.creating = true
-			return m, createSession(m.client, name, m.cwd)
+			return m, createSession(m.ctx, m.client, name, m.cwd)
 		}
 	}
 
@@ -239,9 +245,9 @@ var (
 	errorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
 )
 
-func loadSessions(client tmux.Client, generation uint64) tea.Cmd {
+func loadSessions(ctx context.Context, client tmux.Client, generation uint64) tea.Cmd {
 	return func() tea.Msg {
-		sessions, err := client.List(context.Background())
+		sessions, err := client.List(ctx)
 		return sessionsLoadedMsg{
 			generation: generation,
 			sessions:   sessions,
@@ -250,9 +256,9 @@ func loadSessions(client tmux.Client, generation uint64) tea.Cmd {
 	}
 }
 
-func createSession(client tmux.Client, name, cwd string) tea.Cmd {
+func createSession(ctx context.Context, client tmux.Client, name, cwd string) tea.Cmd {
 	return func() tea.Msg {
-		err := client.Create(context.Background(), name, cwd)
+		err := client.Create(ctx, name, cwd)
 		return sessionCreatedMsg{name: name, err: err}
 	}
 }
