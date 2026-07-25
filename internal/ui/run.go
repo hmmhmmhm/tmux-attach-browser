@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 
 	tea "charm.land/bubbletea/v2"
@@ -13,7 +14,9 @@ type programRunner interface {
 
 // Run starts the interactive browser and returns its selected session.
 func Run(client tmux.Client, cwd string) (string, bool, error) {
-	return runProgram(tea.NewProgram(New(client, cwd)))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	return runProgram(tea.NewProgram(newModel(ctx, client, cwd)))
 }
 
 func runProgram(program programRunner) (string, bool, error) {

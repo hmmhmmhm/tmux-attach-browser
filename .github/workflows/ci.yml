@@ -48,6 +48,26 @@ jobs:
             exit 1
           }
 
+  quality:
+    name: Quality (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Verify source file line limit
+        run: sh scripts/check-source-lines.sh
+      - name: Test source file line checker
+        run: sh scripts/test-source-lines.sh
+      - name: Check Go vulnerabilities
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
+      - name: Check shell scripts
+        run: shellcheck install.sh scripts/*.sh
+      - name: Check GitHub Actions workflows
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+
   integration:
     name: Integration (Ubuntu)
     runs-on: ubuntu-latest
@@ -65,5 +85,7 @@ jobs:
         run: go test -race ./...
       - name: Installer tests
         run: sh scripts/test-install.sh
+      - name: tab binary smoke test
+        run: sh scripts/tab-binary-smoke.sh
       - name: tmux smoke test
         run: sh scripts/tmux-smoke.sh

@@ -13,12 +13,14 @@ import (
 )
 
 type fakeClient struct {
-	lists       [][]tmux.Session
-	listErrors  []error
-	listCalls   int
-	createName  string
-	createDir   string
-	createError error
+	lists         [][]tmux.Session
+	listErrors    []error
+	listCalls     int
+	createName    string
+	createDir     string
+	createError   error
+	listContext   context.Context
+	createContext context.Context
 }
 
 type fakeProgram struct {
@@ -30,7 +32,8 @@ func (f fakeProgram) Run() (tea.Model, error) {
 	return f.model, f.err
 }
 
-func (f *fakeClient) List(context.Context) ([]tmux.Session, error) {
+func (f *fakeClient) List(ctx context.Context) ([]tmux.Session, error) {
+	f.listContext = ctx
 	index := f.listCalls
 	f.listCalls++
 	if index < len(f.listErrors) && f.listErrors[index] != nil {
@@ -47,7 +50,8 @@ func (f *fakeClient) List(context.Context) ([]tmux.Session, error) {
 
 func (f *fakeClient) Check(context.Context) error { return nil }
 
-func (f *fakeClient) Create(_ context.Context, name, dir string) error {
+func (f *fakeClient) Create(ctx context.Context, name, dir string) error {
+	f.createContext = ctx
 	f.createName = name
 	f.createDir = dir
 	return f.createError
@@ -81,13 +85,46 @@ func updateModel(t *testing.T, model Model, msg tea.Msg) (Model, tea.Cmd) {
 
 func loadModel(t *testing.T, client *fakeClient) Model {
 	t.Helper()
-	model := New(client, "/tmp/project")
+	return loadModelFromModel(t, New(client, "/tmp/project"))
+}
+
+func loadModelFromModel(t *testing.T, model Model) Model {
+	t.Helper()
 	cmd := model.Init()
 	if cmd == nil {
 		t.Fatal("Init returned nil command")
 	}
 	model, _ = updateModel(t, model, cmd())
 	return model
+}
+
+func TestLoadUsesModelContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	client := &fakeClient{}
+	model := newModel(ctx, client, "/tmp/project")
+	cancel()
+
+	model.Init()()
+
+	if !errors.Is(client.listContext.Err(), context.Canceled) {
+		t.Fatalf("context error = %v", client.listContext.Err())
+	}
+}
+
+func TestCreateUsesModelContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	client := &fakeClient{}
+	model := loadModelFromModel(t, newModel(ctx, client, "/tmp/project"))
+	model, _ = updateModel(t, model, keyMsg('n', "n"))
+	model.input.SetValue("work")
+	model, cmd := updateModel(t, model, keyMsg(tea.KeyEnter, ""))
+	cancel()
+
+	cmd()
+
+	if !errors.Is(client.createContext.Err(), context.Canceled) {
+		t.Fatalf("context error = %v", client.createContext.Err())
+	}
 }
 
 func TestInitLoadsSessions(t *testing.T) {
@@ -144,6 +181,28 @@ func TestRefreshReplacesItems(t *testing.T) {
 	item := model.list.Items()[0].(sessionItem)
 	if item.Title() != "new" || client.listCalls != 2 {
 		t.Fatalf("title = %q, calls = %d", item.Title(), client.listCalls)
+	}
+}
+
+func TestOlderRefreshResultCannotReplaceNewerResult(t *testing.T) {
+	client := &fakeClient{lists: [][]tmux.Session{
+		{session("initial", 1, 0)},
+		{session("older", 1, 0)},
+		{session("newer", 1, 0)},
+	}}
+	model := loadModel(t, client)
+
+	model, olderCmd := updateModel(t, model, keyMsg('r', "r"))
+	model, newerCmd := updateModel(t, model, keyMsg('r', "r"))
+	olderMsg := olderCmd()
+	newerMsg := newerCmd()
+
+	model, _ = updateModel(t, model, newerMsg)
+	model, _ = updateModel(t, model, olderMsg)
+
+	item := model.list.Items()[0].(sessionItem)
+	if item.Title() != "newer" || model.loading {
+		t.Fatalf("title = %q, loading = %v", item.Title(), model.loading)
 	}
 }
 
