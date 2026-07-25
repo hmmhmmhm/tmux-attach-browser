@@ -4,10 +4,7 @@ set -eu
 max_lines=450
 repository=${1:-$(git rev-parse --show-toplevel)}
 scratch=$(mktemp -d)
-cleanup() {
-	rm -rf "$scratch"
-}
-trap cleanup EXIT INT TERM
+trap 'rm -rf "$scratch"' EXIT INT TERM
 
 git -C "$repository" ls-files -- \
 	'*.go' '*.sh' '*.ps1' '*.yml' '*.yaml' >"$scratch/files"

@@ -35,6 +35,9 @@ sh scripts/test-source-lines.sh
 sh scripts/test-install.sh
 sh scripts/tmux-smoke.sh
 sh scripts/tab-binary-smoke.sh
+go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
+go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+shellcheck install.sh scripts/*.sh
 ```
 
 Pull requests should be small, explain user-visible behavior, and include tests. Do not include generated `dist` artifacts.

@@ -1,12 +1,9 @@
 #!/bin/sh
 set -eu
 
-project_root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+project_root=$(CDPATH='' cd -- "$(dirname "$0")/.." && pwd)
 fixture=$(mktemp -d)
-cleanup() {
-	rm -rf "$fixture"
-}
-trap cleanup EXIT INT TERM
+trap 'rm -rf "$fixture"' EXIT INT TERM
 
 git -C "$fixture" init -q
 awk 'BEGIN { for (i = 1; i <= 450; i++) print "# line" }' >"$fixture/boundary.sh"

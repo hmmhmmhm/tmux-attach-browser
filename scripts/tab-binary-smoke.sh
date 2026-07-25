@@ -1,12 +1,9 @@
 #!/bin/sh
 set -eu
 
-project_root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+project_root=$(CDPATH='' cd -- "$(dirname "$0")/.." && pwd)
 scratch=$(mktemp -d)
-cleanup() {
-	rm -rf "$scratch"
-}
-trap cleanup EXIT INT TERM
+trap 'rm -rf "$scratch"' EXIT INT TERM
 
 cd "$project_root"
 go build -o "$scratch/tab" ./cmd/tab
@@ -30,7 +27,7 @@ SCRIPT
 chmod +x "$scratch/tmux"
 
 : >"$scratch/tmux.log"
-PATH="$scratch:$PATH" TAB_TMUX_LOG="$scratch/tmux.log" TMUX= \
+PATH="$scratch:$PATH" TAB_TMUX_LOG="$scratch/tmux.log" TMUX='' \
 	"$scratch/tab" alpha
 grep -Fx 'attach-session -t alpha' "$scratch/tmux.log"
 

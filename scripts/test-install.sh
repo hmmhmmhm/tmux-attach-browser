@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-project_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+project_root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 test_root=$(mktemp -d "${TMPDIR:-/tmp}/tab-install-test.XXXXXX")
 trap 'rm -rf "$test_root"' EXIT INT TERM
 
@@ -31,7 +31,7 @@ TAB_RELEASE_BASE_URL="file://$release_dir" \
 	TAB_ARCH=amd64 \
 	sh "$project_root/install.sh" >/dev/null
 
-actual=$($test_root/bin/tab)
+actual=$("$test_root/bin/tab")
 if [ "$actual" != "fixture tab v0.1.0" ]; then
 	printf '%s\n' "FAIL: installed binary output was $actual" >&2
 	exit 1
