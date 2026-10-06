@@ -10,9 +10,17 @@ permissions:
   contents: read
 
 jobs:
+  select-runner:
+    uses: ./.github/workflows/select-local-runner.yml
+    with:
+      cloud-runner: macos-latest
+    secrets:
+      status-token: ${{ secrets.LOCAL_RUNNER_STATUS_TOKEN }}
+
   test:
     name: Test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    needs: select-runner
+    runs-on: ${{ matrix.os == 'macos-latest' && fromJSON(needs.select-runner.outputs.runner) || matrix.os }}
     strategy:
       fail-fast: false
       matrix:
